@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-5xl">
+  <h1 class="mb-4 text-2xl font-bold text-slate-900">{{ title }}</h1>
+  <form method="post" enctype="multipart/form-data" class="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
+    {% csrf_token %}
+
+    <section class="rounded-xl border border-slate-200 p-4">
+      <h2 class="mb-3 text-lg font-bold text-slate-900">Name & Details</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="md:col-span-2">
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.photo.label }}</label>
+          {{ form.photo }}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.name.label }}</label>
+          {{ form.name }}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.ear_tag_number.label }}</label>
+          {{ form.ear_tag_number }}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.age.label }}</label>
+          {{ form.age }}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.sex.label }}</label>
+          {{ form.sex }}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.mother.label }}</label>
+          {{ form.mother }}
+        </div>
+        <div class="flex items-center gap-2 pt-2">
+          {{ form.is_bought }}
+          <label class="text-sm font-semibold text-slate-700" for="{{ form.is_bought.id_for_label }}">{{ form.is_bought.label }}</label>
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.birth_date.label }}</label>
+          {{ form.birth_date }}
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.buyed_date.label }}</label>
+          {{ form.buyed_date }}
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-xl border border-slate-200 p-4">
+      <h2 class="mb-3 text-base font-bold text-slate-900">Breeding & Family</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div id="pregnancy-wrap">
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.number_of_pregnancy.label }}</label>
+          {{ form.number_of_pregnancy }}
+        </div>
+        <div id="milk-wrap">
+          <label class="mb-1 block text-sm font-semibold text-slate-700">{{ form.average_litre_per_day.label }}</label>
+          {{ form.average_litre_per_day }}
+        </div>
+        <div id="currently-pregnant-wrap" class="flex items-center gap-2 pt-2">
+          {{ form.currently_pregnant }}
+          <label class="text-sm font-semibold text-slate-700" for="{{ form.currently_pregnant.id_for_label }}">Currently Pregnant</label>
+        </div>
+      </div>
+
+      <div class="mt-4 border-t border-slate-200 pt-4">
+        <div class="mb-2 flex items-center justify-between">
+          <label class="text-sm font-semibold text-slate-700">Kids</label>
+          <button type="button" class="rounded-full bg-emerald-600 px-3 py-1 text-sm font-bold text-white" id="addKidBtn">+</button>
+        </div>
+        <div id="kidsContainer" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <section class="rounded-xl border border-slate-200 p-4">
+      <div class="mb-2 flex items-center justify-between">
+        <h2 class="text-base font-bold text-slate-900">Health & Medicines</h2>
+        <a href="{% url 'disease_create' %}?next={{ disease_add_next }}" class="rounded-full bg-emerald-600 px-3 py-1 text-sm font-bold text-white">+</a>
+      </div>
+      <p class="mb-3 text-sm text-slate-600">Medicine Status{% if current_month_label %} ({{ current_month_label }}){% endif %}</p>
+      <div class="space-y-2">
+        {% for disease in diseases %}
+          <label class="flex items-center justify-between rounded-lg border border-slate-200 p-3">
+            <span class="font-semibold text-slate-800">{{ disease.name }}</span>
+            <input type="checkbox" name="given_disease_ids" value="{{ disease.id }}" {% if disease.id in selected_disease_ids %}checked{% endif %}>
+          </label>
+        {% empty %}
+          <div class="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-700">No diseases added yet. Click + to add disease.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="space-y-2">
+      <button class="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white">Save</button>
+      <a class="block w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700" href="{% url 'cow_list' %}">Cancel</a>
+    </div>
+  </form>
+
+  <template id="kidRowTemplate">
+    <div class="kid-row flex items-center gap-2">
+      <select name="kid_ids" class="w-full rounded-lg border border-slate-300 px-3 py-2 kid-select">
+        <option value="">-- Select Kid --</option>
+        {% for k in available_kids %}
+          <option value="{{ k.id }}">{{ k.name }}</option>
+        {% endfor %}
+      </select>
+      <button type="button" class="rounded-lg border border-rose-300 px-3 py-2 text-sm font-semibold text-rose-700 remove-kid">Remove</button>
+    </div>
+  </template>
+</div>
+
+<script>
+  (function () {
+    const container = document.getElementById('kidsContainer');
+    const addBtn = document.getElementById('addKidBtn');
+    const template = document.getElementById('kidRowTemplate');
+    const sexField = document.getElementById('{{ form.sex.id_for_label }}');
+    const pregnancyWrap = document.getElementById('pregnancy-wrap');
+    const currentlyPregnantWrap = document.getElementById('currently-pregnant-wrap');
+    const milkWrap = document.getElementById('milk-wrap');
+    const initialIds = [{% for kid_id in selected_kid_ids %}'{{ kid_id }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+
+    function toggleFemaleFields() {
+      const isFemale = sexField && sexField.value === 'female';
+      pregnancyWrap.style.display = isFemale ? '' : 'none';
+      currentlyPregnantWrap.style.display = isFemale ? '' : 'none';
+      milkWrap.style.display = isFemale ? '' : 'none';
+    }
+
+    function addKidRow(selectedId) {
+      const clone = template.content.cloneNode(true);
+      const row = clone.querySelector('.kid-row');
+      const select = clone.querySelector('.kid-select');
+      const removeBtn = clone.querySelector('.remove-kid');
+      if (selectedId) select.value = selectedId;
+      removeBtn.addEventListener('click', function () { row.remove(); });
+      container.appendChild(clone);
+    }
+
+    addBtn.addEventListener('click', function () { addKidRow(''); });
+    if (sexField) {
+      sexField.addEventListener('change', toggleFemaleFields);
+      toggleFemaleFields();
+    }
+    if (initialIds.length) initialIds.forEach(function (id) { addKidRow(id); });
+  })();
+</script>
+{% endblock %}

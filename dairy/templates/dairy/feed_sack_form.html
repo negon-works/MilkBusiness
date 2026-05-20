@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Add Feed Sacks{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-2xl">
+  <h1 class="mb-3 text-2xl font-bold">Add Feed Sack Entry</h1>
+  <form method="post" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+    {% csrf_token %}
+    <div>{{ form.purchase_date.label_tag }} {{ form.purchase_date }}</div>
+    <div>{{ form.sack_count.label_tag }} {{ form.sack_count }}</div>
+    <div>{{ form.notes.label_tag }} {{ form.notes }}</div>
+    <button class="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white">Save</button>
+    <a href="{% url 'feed_sack_list' %}" class="block w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700">Cancel</a>
+  </form>
+</div>
+{% endblock %}

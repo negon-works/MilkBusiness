@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Monthly Review{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-4xl" id="swipe-area" data-prev-url="{{ prev_url }}" data-next-url="{{ next_url }}">
+  <div class="sticky top-16 z-20 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex items-start justify-between">
+      <div><h2 class="text-lg font-bold">{{ customer.name }}</h2><span class="mt-1 inline-block rounded bg-slate-900 px-2 py-1 text-xs font-semibold text-white">Month: {{ month_label }}</span></div>
+      <a href="{{ send_bill_link }}" target="_blank" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">Send Bill</a>
+    </div>
+    <div class="mt-2 text-sm">Total Litres: <strong>{{ bill.total_litre }} L</strong> | Total Days: <strong>{{ bill.total_days }}</strong> | Total Bill: <strong>Rs {{ bill.total_amount }}</strong></div>
+    <div class="mt-2 grid grid-cols-2 gap-2"><a class="rounded-lg border border-slate-300 px-3 py-2 text-center text-sm font-semibold text-slate-700" href="{{ prev_url }}">Prev Month</a><a class="rounded-lg border border-slate-300 px-3 py-2 text-center text-sm font-semibold text-slate-700" href="{{ next_url }}">Next Month</a></div>
+    <form method="get" class="mt-2 grid grid-cols-12 gap-2"><div class="col-span-5">{{ month_form.month }}</div><div class="col-span-4">{{ month_form.year }}</div><div class="col-span-3"><button class="w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white">Go</button></div></form>
+  </div>
+
+  <div class="mt-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+    <div class="mb-2 grid grid-cols-7 gap-1 text-center text-xs font-semibold text-slate-500"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>
+    {% for week in weeks %}
+      <div class="mb-1 grid grid-cols-7 gap-1">
+        {% for cell in week %}
+          <button type="button" class="day-cell rounded-lg p-2 text-left text-xs {% if cell.cell_class == 'cell-delivered' %}bg-emerald-100{% elif cell.cell_class == 'cell-no-milk' %}bg-rose-100{% else %}bg-slate-100 text-slate-400{% endif %}" {% if cell.show_day %}data-date="{{ cell.day|date:'Y-m-d' }}"{% endif %} data-default-morning="{{ customer.morning_litre }}" data-default-evening="{{ customer.evening_litre }}" {% if not cell.can_edit %}disabled{% endif %}>
+            {% if cell.show_day %}<div class="font-semibold">{{ cell.day.day }}</div><div>{{ cell.total_litre|floatformat:-2 }}L</div>{% else %}&nbsp;{% endif %}
+          </button>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div id="dayModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
+  <div class="w-full max-w-lg rounded-xl bg-white p-4 shadow-xl">
+    <div class="mb-3 flex items-center justify-between"><h3 class="text-lg font-bold">Edit Day: <span id="modalDateLabel"></span></h3><button type="button" class="rounded px-2 py-1 text-slate-600 hover:bg-slate-100" data-close-modal>?</button></div>
+    <form method="post" class="space-y-3">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="edit_day"><input type="hidden" name="date" id="modalDate">
+      <div class="grid grid-cols-2 gap-2">
+        <div class="litre-switcher" data-target="id_morning_litre" data-initial-unit="litre"><label class="mb-1 block text-sm font-semibold">Morning Unit</label><select name="morning_unit" id="id_morning_unit" class="w-full rounded-lg border border-slate-300 px-3 py-2 litre-unit"><option value="litre">Litre</option><option value="ml">ML (500 fixed)</option></select></div>
+        <div><label class="mb-1 block text-sm font-semibold">Morning L</label><input type="number" step="0.01" min="0" name="morning_litre" id="id_morning_litre" class="w-full rounded-lg border border-slate-300 px-3 py-2"></div>
+        <div class="litre-switcher" data-target="id_evening_litre" data-initial-unit="litre"><label class="mb-1 block text-sm font-semibold">Evening Unit</label><select name="evening_unit" id="id_evening_unit" class="w-full rounded-lg border border-slate-300 px-3 py-2 litre-unit"><option value="litre">Litre</option><option value="ml">ML (500 fixed)</option></select></div>
+        <div><label class="mb-1 block text-sm font-semibold">Evening L</label><input type="number" step="0.01" min="0" name="evening_litre" id="id_evening_litre" class="w-full rounded-lg border border-slate-300 px-3 py-2"></div>
+        <div><label class="mb-1 block text-sm font-semibold">Morning Status</label><select name="morning_status" id="id_morning_status" class="w-full rounded-lg border border-slate-300 px-3 py-2"><option value="delivered">Delivered</option><option value="no_milk">No Milk</option></select></div>
+        <div><label class="mb-1 block text-sm font-semibold">Evening Status</label><select name="evening_status" id="id_evening_status" class="w-full rounded-lg border border-slate-300 px-3 py-2"><option value="delivered">Delivered</option><option value="no_milk">No Milk</option></select></div>
+      </div>
+      <div class="text-sm text-slate-600">Total: <strong id="modalTotal">0 L</strong> | Amount: <strong id="modalAmount">Rs 0</strong></div>
+      <button class="w-full rounded-lg bg-slate-900 px-4 py-2 font-semibold text-white" type="submit">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+{{ entry_payload|json_script:'entryPayload' }}
+{% endblock %}

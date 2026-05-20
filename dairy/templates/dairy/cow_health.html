@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Medicine - {{ cow.name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <h1 class="text-2xl font-bold text-slate-900">Medicine & Checkups - {{ cow.name }}</h1>
+    <p class="text-sm text-slate-600">Add treatments during doctor visits and keep history.</p>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <form method="post" class="grid gap-2 md:grid-cols-2">
+      {% csrf_token %}
+      <div>{{ form.disease_name.label_tag }} {{ form.disease_name }}</div>
+      <div>{{ form.checkup_date.label_tag }} {{ form.checkup_date }}</div>
+      <div>{{ form.treatment.label_tag }} {{ form.treatment }}</div>
+      <div>{{ form.medicine_given.label_tag }} {{ form.medicine_given }}</div>
+      <div>{{ form.treated_by.label_tag }} {{ form.treated_by }}</div>
+      <div>{{ form.notes.label_tag }} {{ form.notes }}</div>
+      <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">{{ form.worm_medicine }} Worm medicine given</label>
+      <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">{{ form.monthly_checkup }} Monthly checkup done</label>
+      <div class="md:col-span-2"><button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Save Treatment</button></div>
+    </form>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <h2 class="mb-2 text-lg font-bold text-slate-900">History</h2>
+    <div class="space-y-2">
+      {% for log in history %}
+        <div class="rounded-lg border border-slate-200 bg-slate-50 p-2 text-sm">
+          <div class="font-semibold text-slate-900">{{ log.checkup_date|date:'d M Y' }} - {{ log.disease_name }}</div>
+          <div class="text-slate-700">Treatment: {{ log.treatment|default:'-' }} | Medicine: {{ log.medicine_given|default:'-' }}</div>
+          <div class="text-slate-600">Doctor: {{ log.treated_by|default:'-' }}{% if log.worm_medicine %} | Worm medicine: Yes{% endif %}{% if log.monthly_checkup %} | Monthly checkup{% endif %}</div>
+        </div>
+      {% empty %}
+        <div class="text-sm text-slate-500">No treatment history yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}{{ mode|title }} Summary{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-3">
+  <div class="flex items-center justify-between"><h1 class="text-2xl font-bold">{{ mode|title }} Summary</h1><a href="{{ edit_link }}" class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700">Continue Check</a></div>
+  <div class="text-sm text-slate-600">Date: {{ selected_date }}</div>
+  {% for entry in entries %}
+    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="mb-2 text-lg font-semibold">{{ entry.customer.name }}</div>
+      <form method="post" class="space-y-2">
+        {% csrf_token %}
+        <input type="hidden" name="entry_id" value="{{ entry.id }}">
+        <div class="grid grid-cols-12 gap-2">
+          <div class="col-span-4 litre-switcher" data-target="litre_{{ entry.id }}" data-initial-unit="{% if mode == 'morning' %}{% if entry.morning_litre|floatformat:2 == '0.50' %}ml{% else %}litre{% endif %}{% else %}{% if entry.evening_litre|floatformat:2 == '0.50' %}ml{% else %}litre{% endif %}{% endif %}">
+            <label class="mb-1 block text-sm font-semibold">Unit</label>
+            <select class="w-full rounded-lg border border-slate-300 px-3 py-2 litre-unit" name="litre_unit"><option value="litre">Litre</option><option value="ml">ML (500 fixed)</option></select>
+          </div>
+          <div class="col-span-8">
+            <label class="mb-1 block text-sm font-semibold">{{ mode|title }} Litre</label>
+            <input id="litre_{{ entry.id }}" type="number" class="w-full rounded-lg border border-slate-300 px-3 py-2" step="0.01" min="0" name="litre" value="{% if mode == 'morning' %}{{ entry.morning_litre }}{% else %}{{ entry.evening_litre }}{% endif %}">
+          </div>
+          <div class="col-span-12">
+            <label class="mb-1 block text-sm font-semibold">{{ mode|title }} Status</label>
+            <select class="w-full rounded-lg border border-slate-300 px-3 py-2" name="status">
+              {% if mode == 'morning' %}
+              <option value="delivered" {% if entry.morning_status == 'delivered' %}selected{% endif %}>Delivered</option><option value="no_milk" {% if entry.morning_status == 'no_milk' %}selected{% endif %}>No Milk</option>
+              {% else %}
+              <option value="delivered" {% if entry.evening_status == 'delivered' %}selected{% endif %}>Delivered</option><option value="no_milk" {% if entry.evening_status == 'no_milk' %}selected{% endif %}>No Milk</option>
+              {% endif %}
+            </select>
+          </div>
+        </div>
+        <button class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Update</button>
+      </form>
+    </div>
+  {% empty %}<div class="rounded-xl border border-slate-200 bg-white p-4 text-slate-600">No entries found for this date.</div>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Update Medicine - {{ cow.name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <h1 class="text-2xl font-bold text-slate-900">Update Medicine - {{ cow.name }}</h1>
+    <p class="text-sm text-slate-600">All medicine updates are managed here. Latest dates are shown on cow detail page.</p>
+  </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <h2 class="mb-2 text-lg font-bold text-slate-900">Deworming</h2>
+      <form method="post" class="space-y-2">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_deworming">
+        <div>{{ deworming_form.given_on.label_tag }} {{ deworming_form.given_on }}</div>
+        <div>{{ deworming_form.note.label_tag }} {{ deworming_form.note }}</div>
+        <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Save Deworming</button>
+      </form>
+      <div class="mt-3 flex items-center gap-2">
+        <a href="{% url 'cow_medicine_history' cow.id 'deworming' %}" class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">View History</a>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="clear_history">
+          <input type="hidden" name="medicine_type" value="deworming">
+          <button class="rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-semibold text-rose-700">Clear Full History</button>
+        </form>
+      </div>
+      <div class="mt-3 space-y-2">
+        {% for row in deworming_records %}
+          <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+            <div>{{ row.given_on|date:'d M Y' }}{% if row.note %} - {{ row.note }}{% endif %}</div>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete_record">
+              <input type="hidden" name="record_id" value="{{ row.id }}">
+              <button class="text-rose-700">Delete</button>
+            </form>
+          </div>
+        {% empty %}
+          <div class="text-sm text-slate-500">No deworming records yet.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <h2 class="mb-2 text-lg font-bold text-slate-900">FMD Vaccine</h2>
+      <form method="post" class="space-y-2">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_fmd">
+        <div>{{ fmd_form.given_on.label_tag }} {{ fmd_form.given_on }}</div>
+        <div>{{ fmd_form.note.label_tag }} {{ fmd_form.note }}</div>
+        <button class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Save FMD Vaccine</button>
+      </form>
+      <div class="mt-3 flex items-center gap-2">
+        <a href="{% url 'cow_medicine_history' cow.id 'fmd_vaccine' %}" class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">View History</a>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="clear_history">
+          <input type="hidden" name="medicine_type" value="fmd_vaccine">
+          <button class="rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-semibold text-rose-700">Clear Full History</button>
+        </form>
+      </div>
+      <div class="mt-3 space-y-2">
+        {% for row in fmd_records %}
+          <div class="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+            <div>{{ row.given_on|date:'d M Y' }}{% if row.note %} - {{ row.note }}{% endif %}</div>
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="delete_record">
+              <input type="hidden" name="record_id" value="{{ row.id }}">
+              <button class="text-rose-700">Delete</button>
+            </form>
+          </div>
+        {% empty %}
+          <div class="text-sm text-slate-500">No FMD records yet.</div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

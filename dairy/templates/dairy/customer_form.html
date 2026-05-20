@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl">
+  <h1 class="mb-3 text-2xl font-bold text-slate-900">{{ title }}</h1>
+
+  {% if bulk_headers %}
+    <div class="mb-3 inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
+      <button type="button" class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white" id="singleModeBtn">Single Add</button>
+      <button type="button" class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700" id="bulkModeBtn">Add Bulk (CSV)</button>
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" id="singleForm">
+    {% csrf_token %}
+    <input type="hidden" name="mode" value="single">
+    <div class="grid gap-3 md:grid-cols-2">
+      <div>{{ form.name.label_tag }} {{ form.name }}</div>
+      <div>{{ form.whatsapp_number.label_tag }} {{ form.whatsapp_number }}</div>
+      <div class="md:col-span-2 grid grid-cols-5 gap-2 litre-switcher" data-target="id_morning_litre" data-initial-unit="{{ morning_unit }}">
+        <div class="col-span-2">
+          <label class="mb-1 block text-sm font-semibold text-slate-700">Morning Unit</label>
+          <select class="w-full rounded-lg border border-slate-300 px-3 py-2 litre-unit" name="morning_unit">
+            <option value="litre">Litre</option>
+            <option value="ml">ML (500 fixed)</option>
+          </select>
+        </div>
+        <div class="col-span-3">{{ form.morning_litre.label_tag }} {{ form.morning_litre }}</div>
+      </div>
+      <div class="md:col-span-2 grid grid-cols-5 gap-2 litre-switcher" data-target="id_evening_litre" data-initial-unit="{{ evening_unit }}">
+        <div class="col-span-2">
+          <label class="mb-1 block text-sm font-semibold text-slate-700">Evening Unit</label>
+          <select class="w-full rounded-lg border border-slate-300 px-3 py-2 litre-unit" name="evening_unit">
+            <option value="litre">Litre</option>
+            <option value="ml">ML (500 fixed)</option>
+          </select>
+        </div>
+        <div class="col-span-3">{{ form.evening_litre.label_tag }} {{ form.evening_litre }}</div>
+      </div>
+      <div class="md:col-span-2">{{ form.address.label_tag }} {{ form.address }}</div>
+    </div>
+    <div class="mt-4 space-y-2">
+      <button type="submit" class="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white">Save</button>
+      <a href="{% url 'customer_list' %}" class="block w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700">Cancel</a>
+    </div>
+  </form>
+
+  {% if bulk_headers %}
+    <form method="post" enctype="multipart/form-data" class="hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm" id="bulkForm">
+      {% csrf_token %}
+      <input type="hidden" name="mode" value="bulk">
+      <label class="mb-1 block text-sm font-semibold text-slate-700">Upload CSV File</label>
+      <input type="file" name="csv_file" accept=".csv" class="w-full rounded-lg border border-slate-300 px-3 py-2" required>
+      <div class="mt-3 text-sm text-slate-600">Required CSV headers:</div>
+      <code class="mt-1 block rounded bg-slate-100 px-3 py-2 text-sm">{{ bulk_headers|join:', ' }}</code>
+      <div class="mt-4 space-y-2">
+        <button type="submit" class="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white">Import CSV</button>
+        <a href="{% url 'customer_list' %}" class="block w-full rounded-lg border border-slate-300 px-4 py-2 text-center font-semibold text-slate-700">Cancel</a>
+      </div>
+    </form>
+
+    <script>
+      (function () {
+        const singleBtn = document.getElementById('singleModeBtn');
+        const bulkBtn = document.getElementById('bulkModeBtn');
+        const singleForm = document.getElementById('singleForm');
+        const bulkForm = document.getElementById('bulkForm');
+        if (!singleBtn || !bulkBtn || !singleForm || !bulkForm) return;
+        singleBtn.addEventListener('click', function () {
+          singleForm.classList.remove('hidden');
+          bulkForm.classList.add('hidden');
+          singleBtn.classList.add('bg-slate-900', 'text-white');
+          bulkBtn.classList.remove('bg-slate-900', 'text-white');
+        });
+        bulkBtn.addEventListener('click', function () {
+          bulkForm.classList.remove('hidden');
+          singleForm.classList.add('hidden');
+          bulkBtn.classList.add('bg-slate-900', 'text-white');
+          singleBtn.classList.remove('bg-slate-900', 'text-white');
+        });
+      })();
+    </script>
+  {% endif %}
+</div>
+{% endblock %}

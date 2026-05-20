@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Delivery History {{ selected_date }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Delivery History</h1>
+        <p class="text-sm text-slate-600">Date: {{ selected_date }}</p>
+      </div>
+      <details class="relative">
+        <summary class="cursor-pointer rounded-lg border border-slate-300 px-3 py-1 text-sm font-semibold text-slate-700">...</summary>
+        <div class="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+          <form method="post">
+            {% csrf_token %}
+            {% if is_holiday %}
+              <input type="hidden" name="action" value="mark_working">
+              <button class="w-full rounded-md px-2 py-2 text-left text-sm hover:bg-slate-50">Mark as Working Day</button>
+            {% else %}
+              <input type="hidden" name="action" value="mark_holiday">
+              <button class="w-full rounded-md px-2 py-2 text-left text-sm hover:bg-slate-50">Mark as Off Day</button>
+            {% endif %}
+          </form>
+        </div>
+      </details>
+    </div>
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+      {% if is_holiday %}
+        <span class="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-semibold text-slate-700">Off Day</span>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="mark_working">
+          <button class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700">Mark as Working Day</button>
+        </form>
+      {% else %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="mark_holiday">
+          <button class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700">Mark as Off Day</button>
+        </form>
+      {% endif %}
+    </div>
+    {% if not is_holiday %}
+    <div class="mt-3 grid grid-cols-2 gap-2 md:max-w-sm">
+      <a href="{% url 'delivery_date_history' %}?date={{ selected_date|date:'Y-m-d' }}&mode=morning" class="rounded-lg px-3 py-2 text-center text-sm font-semibold {% if mode == 'morning' %}bg-emerald-600 text-white{% else %}border border-slate-300 text-slate-700{% endif %}">Morning</a>
+      <a href="{% url 'delivery_date_history' %}?date={{ selected_date|date:'Y-m-d' }}&mode=evening" class="rounded-lg px-3 py-2 text-center text-sm font-semibold {% if mode == 'evening' %}bg-indigo-600 text-white{% else %}border border-slate-300 text-slate-700{% endif %}">Evening</a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if is_holiday %}
+    <div class="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">This day is marked as off day. Change to working day to add morning/evening delivery marks.</div>
+  {% else %}
+  <div class="space-y-2">
+    {% for row in rows %}
+      <div class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+        <div class="mb-2 flex items-center justify-between">
+          <h3 class="text-base font-bold text-slate-900">{{ row.customer.name }}</h3>
+          <span class="text-sm font-semibold {% if row.status == 'delivered' %}text-emerald-700{% else %}text-rose-700{% endif %}">
+            {% if row.status == 'delivered' %}Delivered{% else %}No Milk{% endif %}
+          </span>
+        </div>
+        <form method="post" class="space-y-2">
+          {% csrf_token %}
+          <input type="hidden" name="entry_id" value="{{ row.entry.id }}">
+          <input type="hidden" name="mode" value="{{ mode }}">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="litre-switcher" data-target="litre_{{ row.entry.id }}" data-initial-unit="{% if row.litre|floatformat:2 == '0.50' %}ml{% else %}litre{% endif %}">
+              <label class="mb-1 block text-xs font-semibold text-slate-700">Unit</label>
+              <select class="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm litre-unit" name="litre_unit">
+                <option value="litre">Litre</option>
+                <option value="ml">ML (500 fixed)</option>
+              </select>
+            </div>
+            <div>
+              <label class="mb-1 block text-xs font-semibold text-slate-700">Qty</label>
+              <input id="litre_{{ row.entry.id }}" type="number" name="litre" min="0" step="0.01" value="{{ row.litre }}" class="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="submit" name="status" value="delivered" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white">Delivered</button>
+            <button type="submit" name="status" value="no_milk" class="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white">No Milk</button>
+          </div>
+        </form>
+      </div>
+    {% empty %}
+      <div class="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">No delivery records for this shift on this date.</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

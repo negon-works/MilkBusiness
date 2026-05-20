@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl space-y-3">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-slate-900">Customers</h1>
+    <a href="{% url 'customer_create' %}" class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">+ Add</a>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4">
+    <div class="md:hidden">
+      <form method="get" class="relative flex items-center gap-2">
+        <input type="hidden" name="shift" value="{{ shift }}">
+        <input type="hidden" name="billing" value="{{ billing }}">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search customer" class="min-w-0 flex-1 rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500">
+        <button id="mobileFilterBtn" type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-300 text-slate-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h18M6 12h12m-9 7h6"/>
+          </svg>
+        </button>
+        <button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35m1.6-5.15a6.75 6.75 0 1 1-13.5 0 6.75 6.75 0 0 1 13.5 0Z"/>
+          </svg>
+        </button>
+
+        <div id="mobileFilterMenu" class="absolute right-0 top-12 z-20 hidden w-44 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+          <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}shift=all&billing={{ billing }}" class="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">All Customers</a>
+          <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}shift=morning&billing={{ billing }}" class="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Morning</a>
+          <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}shift=evening&billing={{ billing }}" class="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Evening</a>
+          <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}shift={{ shift }}&billing=pending" class="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">Pending Payments</a>
+        </div>
+      </form>
+
+      {% if shift != 'all' or billing == 'pending' %}
+        <div class="mt-2 flex flex-wrap gap-2">
+          {% if shift != 'all' %}
+            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+              {{ shift|title }}
+              <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}shift=all&billing={{ billing }}" class="text-emerald-700">x</a>
+            </span>
+          {% endif %}
+          {% if billing == 'pending' %}
+            <span class="inline-flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800">
+              Pending Payments
+              <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}shift={{ shift }}&billing=all" class="text-orange-700">x</a>
+            </span>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <form method="get" class="hidden md:grid md:grid-cols-12 md:gap-2">
+      <div class="md:col-span-6">
+        <label class="mb-1 block text-xs font-semibold text-slate-700">Search Customer</label>
+        <input type="text" name="q" value="{{ query }}" placeholder="Name, phone, address" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500">
+      </div>
+      <div class="md:col-span-3">
+        <label class="mb-1 block text-xs font-semibold text-slate-700">Filter</label>
+        <select name="shift" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500">
+          <option value="all" {% if shift == 'all' %}selected{% endif %}>All Customers</option>
+          <option value="morning" {% if shift == 'morning' %}selected{% endif %}>Morning</option>
+          <option value="evening" {% if shift == 'evening' %}selected{% endif %}>Evening</option>
+        </select>
+      </div>
+      <div class="md:col-span-2">
+        <label class="mb-1 block text-xs font-semibold text-slate-700">Billing</label>
+        <select name="billing" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-slate-500">
+          <option value="all" {% if billing == 'all' %}selected{% endif %}>All</option>
+          <option value="pending" {% if billing == 'pending' %}selected{% endif %}>Pending Payments</option>
+        </select>
+      </div>
+      <div class="md:col-span-1 md:flex md:items-end">
+        <button class="w-full rounded-xl bg-slate-900 px-3 py-2.5 text-sm font-semibold text-white">Search</button>
+      </div>
+    </form>
+  </div>
+
+  {% for customer in customers %}
+    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900">{{ customer.name }}</h3>
+          <div class="text-sm text-slate-600">{{ customer.whatsapp_number }}</div>
+          <div class="mt-1 text-sm text-slate-700">M: {{ customer.morning_litre }} L | E: {{ customer.evening_litre }} L</div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <a href="{% url 'customer_detail' customer.pk %}" class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">Open</a>
+          <a href="{% url 'customer_update' customer.pk %}" class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Edit</a>
+          <a href="{% url 'customer_delete' customer.pk %}" class="rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-semibold text-rose-700">Delete</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">No customers yet. Add your first customer.</div>
+  {% endfor %}
+</div>
+<script>
+  (function () {
+    const btn = document.getElementById('mobileFilterBtn');
+    const menu = document.getElementById('mobileFilterMenu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+      menu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', function (e) {
+      if (!menu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+  })();
+</script>
+{% endblock %}

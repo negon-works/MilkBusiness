@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}{{ cow.name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-md md:p-6">
+    <div class="grid gap-6 md:grid-cols-[360px,1fr]">
+      {% if cow.photo %}
+        <img src="{{ cow.photo.url }}" class="h-full min-h-[300px] w-full rounded-2xl object-cover" alt="{{ cow.name }}">
+      {% else %}
+        <div class="flex h-full min-h-[300px] items-center justify-center rounded-2xl bg-slate-100 text-slate-500">No Photo</div>
+      {% endif %}
+
+      <div>
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <h1 class="text-3xl font-extrabold text-amber-950">{{ cow.name }}</h1>
+          <details class="relative">
+            <summary class="cursor-pointer list-none rounded-lg border border-slate-300 px-2 py-1 text-xs font-bold text-slate-700">...</summary>
+            <div class="absolute right-0 z-20 mt-1 w-44 rounded-lg border border-slate-200 bg-white p-1 shadow-lg">
+              <a href="{% url 'cow_update' cow.id %}" class="block rounded-md px-2 py-2 text-sm text-slate-700 hover:bg-slate-50">Edit</a>
+              <a href="{% url 'cow_medicine_edit' cow.id %}" class="block rounded-md px-2 py-2 text-sm text-slate-700 hover:bg-slate-50">Update Medicine</a>
+              {% if listing %}
+                <a href="{% url 'cow_shop_record' cow.id %}" class="block rounded-md px-2 py-2 text-sm text-slate-700 hover:bg-slate-50">View Cow Shop</a>
+              {% else %}
+                <a href="{% url 'cow_sell' cow.id %}" class="block rounded-md px-2 py-2 text-sm text-slate-700 hover:bg-slate-50">View Cow Shop</a>
+              {% endif %}
+            </div>
+          </details>
+        </div>
+
+        <hr class="my-3">
+        <div class="grid gap-2 text-base text-slate-900 sm:grid-cols-2">
+          {% if cow.ear_tag_number %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Ear/Tag Number:</span> {{ cow.ear_tag_number }}</div>
+          {% endif %}
+          <div><span class="font-medium text-slate-700">Sex:</span> {{ cow.sex|title }}</div>
+          <div><span class="font-medium text-slate-700">Age:</span> {{ cow.age }} Years</div>
+          <div class="sm:col-span-2"><span class="font-medium text-slate-700">Status:</span> {% if cow.is_bought %}Bought{% else %}Born in Farm{% endif %}</div>
+          {% if cow.birth_date %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Date of Birth:</span> {{ cow.birth_date|date:'d-m-Y' }}</div>
+          {% endif %}
+          {% if cow.buyed_date %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Brought Date:</span> {{ cow.buyed_date|date:'d-m-Y' }}</div>
+          {% endif %}
+        </div>
+
+        <hr class="my-4">
+        <h3 class="mb-2 text-lg font-bold tracking-wide text-amber-950 md:text-xl">Breeding & Family</h3>
+        <div class="space-y-2 text-base text-slate-900">
+          {% if cow.sex == 'female' %}
+            <div><span class="font-medium text-slate-700">No. of Pregnancies:</span> {{ cow.number_of_pregnancy|default:'-' }}</div>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-slate-700">Currently Pregnant:</span>
+              {% if cow.currently_pregnant %}
+                <span class="rounded-lg bg-emerald-600 px-3 py-1 text-sm font-semibold text-white">Yes</span>
+              {% else %}
+                <span class="rounded-lg bg-rose-600 px-3 py-1 text-sm font-semibold text-white">No</span>
+              {% endif %}
+            </div>
+          {% endif %}
+          {% if cow.children.exists %}
+            <div>
+              <span class="font-medium text-slate-700">Kids:</span>
+              {% for kid in cow.children.all %}
+                <a href="{% url 'cow_detail' kid.id %}" class="font-bold text-sky-700 underline">{{ kid.name }}</a>{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if cow.mother %}
+            <div>
+              <span class="font-medium text-slate-700">Mother:</span>
+              <a href="{% url 'cow_detail' cow.mother.id %}" class="font-bold text-sky-700 underline">{{ cow.mother.name }}</a>
+            </div>
+          {% endif %}
+        </div>
+
+        <hr class="my-4">
+        <div class="text-base text-slate-900">
+          <span class="font-bold">Avg Milk/Day:</span>
+          {% if cow.average_litre_per_day %}
+            {{ cow.average_litre_per_day }} L
+          {% else %}
+            -
+          {% endif %}
+        </div>
+
+        <hr class="my-4">
+        <h3 class="mb-2 text-lg font-bold tracking-wide text-amber-950 md:text-xl">Health & Medicine</h3>
+        <div class="space-y-3 text-base text-slate-900">
+          <div class="rounded-lg border border-slate-200 p-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="font-semibold text-slate-800">Deworming</div>
+              <a href="{% url 'cow_medicine_history' cow.id 'deworming' %}" title="Deworming History" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 4v3.6h3.6"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.8v4.6h3.8"/>
+                </svg>
+              </a>
+            </div>
+            <div class="mt-1 text-sm">
+              <span class="font-medium text-slate-700">Medicined on:</span>
+              <span class="ml-1 rounded bg-orange-500 px-2 py-0.5 font-bold text-white">{% if deworming_latest %}{{ deworming_latest.given_on|date:'d M Y' }}{% else %}-{% endif %}</span>
+            </div>
+          </div>
+          <div class="rounded-lg border border-slate-200 p-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="font-semibold text-slate-800">FMD Vaccine</div>
+              <a href="{% url 'cow_medicine_history' cow.id 'fmd_vaccine' %}" title="FMD History" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-300 text-slate-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 4v3.6h3.6"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.8v4.6h3.8"/>
+                </svg>
+              </a>
+            </div>
+            <div class="mt-1 text-sm">
+              <span class="font-medium text-slate-700">Medicined on:</span>
+              <span class="ml-1 rounded bg-sky-600 px-2 py-0.5 font-bold text-white">{% if fmd_latest %}{{ fmd_latest.given_on|date:'d M Y' }}{% else %}-{% endif %}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

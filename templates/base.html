@@ -1,0 +1,204 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Milk Business{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% block page_nav %}
+  <nav class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-4 py-3">
+      <div class="flex items-center justify-between">
+        <a class="text-xl font-bold text-slate-900 md:text-2xl" href="{% url 'home' %}">Milk Manager</a>
+        <div class="hidden items-center gap-2 md:flex">
+          <a class="rounded-lg border border-slate-300 p-2 text-slate-700 hover:bg-slate-50" href="{% url 'delivery_notifications' %}" title="Notifications" aria-label="Notifications">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17H19l-1.405-1.405A2.032 2.032 0 0117 14.158V11a5.002 5.002 0 00-4-4.9V5a1 1 0 10-2 0v1.1A5.002 5.002 0 007 11v3.159c0 .538-.214 1.055-.595 1.436L5 17h4.143M14.857 17a3.001 3.001 0 01-5.714 0M14.857 17H9.143"/>
+            </svg>
+          </a>
+          <a class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" href="{% url 'home' %}">Home</a>
+          <a class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" href="{% url 'customer_list' %}">Customers</a>
+          <a class="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" href="{% url 'cow_list' %}">Cows</a>
+        </div>
+        <button id="mobileMenuBtn" type="button" class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <span class="sr-only">Menu</span>
+          <span class="absolute h-0.5 w-5 bg-current transition-transform duration-200" data-line="top" style="transform: translateY(-6px);"></span>
+          <span class="absolute h-0.5 w-5 bg-current transition-opacity duration-200" data-line="mid"></span>
+          <span class="absolute h-0.5 w-5 bg-current transition-transform duration-200" data-line="bot" style="transform: translateY(6px);"></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div id="mobileMenuOverlay" class="fixed inset-0 z-50 hidden bg-black/35 md:hidden"></div>
+  <aside id="mobileMenu" class="fixed right-0 top-0 z-50 h-full w-72 translate-x-full border-l border-slate-200 bg-white p-4 shadow-xl transition-transform duration-300 md:hidden">
+    <div class="mb-3 flex items-center justify-between">
+      <div class="text-lg font-bold text-slate-900">Menu</div>
+      <button id="mobileMenuClose" type="button" class="rounded-lg border border-slate-300 px-2 py-1 text-sm font-semibold text-slate-700">X</button>
+    </div>
+    <div class="space-y-2">
+      <a class="block rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700" href="{% url 'home' %}">Home</a>
+      <a class="block rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700" href="{% url 'customer_list' %}">Customers</a>
+      <a class="block rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700" href="{% url 'cow_list' %}">Cows</a>
+      <a class="block rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700" href="{% url 'marketplace_list' %}">Shop</a>
+      <a class="block rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700" href="{% url 'delivery_notifications' %}">Notifications</a>
+    </div>
+  </aside>
+  {% endblock %}
+
+  <main class="{% block main_class %}mx-auto max-w-6xl px-4 py-4 pb-24{% endblock %}">
+    {% if request.path != '/' %}
+      <div class="mb-3">
+        <button
+          type="button"
+          class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          onclick="goBackSmart()"
+        >
+          Back
+        </button>
+      </div>
+    {% endif %}
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% if '/add/' not in request.path and '/edit/' not in request.path and '/delete/' not in request.path and '/sell/' not in request.path and '/medicine/' not in request.path and '/health/' not in request.path %}
+    <nav class="fixed inset-x-0 bottom-0 border-t border-[#e8dfd2] bg-white/95 backdrop-blur md:hidden">
+      <div class="mx-auto grid w-full max-w-[430px] grid-cols-5 px-2 py-2">
+        <a href="{% url 'home' %}" class="flex flex-col items-center gap-1 {% if request.path == '/' %}text-emerald-700{% else %}text-slate-500{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-6v-6H10v6H4a1 1 0 0 1-1-1v-10.5Z"/></svg>
+          <span class="text-xs font-semibold">Home</span>
+        </a>
+        <a href="{% url 'cow_list' %}" class="flex flex-col items-center gap-1 {% if request.path == '/cows/' %}text-emerald-700{% else %}text-slate-500{% endif %}">
+          <span
+            class="h-6 w-6 {% if request.path == '/cows/' %}bg-emerald-700{% else %}bg-slate-500{% endif %}"
+            style="-webkit-mask-image: url('{% static 'images/cow-animals-svgrepo-com.svg' %}'); mask-image: url('{% static 'images/cow-animals-svgrepo-com.svg' %}'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;"
+            aria-hidden="true"
+          ></span>
+          <span class="text-xs font-semibold">Cows</span>
+        </a>
+        <a href="{% url 'customer_list' %}" class="flex flex-col items-center gap-1 {% if request.path == '/customers/' %}text-emerald-700{% else %}text-slate-500{% endif %}">
+          <span
+            class="h-6 w-6 {% if request.path == '/customers/' %}bg-emerald-700{% else %}bg-slate-500{% endif %}"
+            style="-webkit-mask-image: url('{% static 'images/person-3-fill-svgrepo-com.svg' %}'); mask-image: url('{% static 'images/person-3-fill-svgrepo-com.svg' %}'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;"
+            aria-hidden="true"
+          ></span>
+          <span class="text-xs font-semibold">Customers</span>
+        </a>
+        <a href="{% url 'delivery_dashboard' %}" class="flex flex-col items-center gap-1 {% if request.path == '/delivery/' %}text-emerald-700{% else %}text-slate-500{% endif %}">
+          <span
+            class="h-6 w-6 {% if request.path == '/delivery/' %}bg-emerald-700{% else %}bg-slate-500{% endif %}"
+            style="-webkit-mask-image: url('{% static 'images/delivery-movement-svgrepo-com.svg' %}'); mask-image: url('{% static 'images/delivery-movement-svgrepo-com.svg' %}'); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;"
+            aria-hidden="true"
+          ></span>
+          <span class="text-xs font-semibold">Delivery</span>
+        </a>
+        <a href="{% url 'marketplace_list' %}" class="flex flex-col items-center gap-1 {% if request.path == '/marketplace/' %}text-emerald-700{% else %}text-slate-500{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 9h16l-1.2 10.5a1.5 1.5 0 0 1-1.49 1.33H6.69A1.5 1.5 0 0 1 5.2 19.5L4 9Z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V7a3 3 0 0 1 6 0v2"/>
+          </svg>
+          <span class="text-xs font-semibold">Shop</span>
+        </a>
+      </div>
+    </nav>
+  {% endif %}
+
+  <script src="{% static 'js/app.js' %}"></script>
+  <script>
+    (function () {
+      const btn = document.getElementById('mobileMenuBtn');
+      const closeBtn = document.getElementById('mobileMenuClose');
+      const overlay = document.getElementById('mobileMenuOverlay');
+      const menu = document.getElementById('mobileMenu');
+      if (!btn || !menu) return;
+      const top = btn.querySelector('[data-line="top"]');
+      const mid = btn.querySelector('[data-line="mid"]');
+      const bot = btn.querySelector('[data-line="bot"]');
+      let open = false;
+      function setOpen(state) {
+        open = state;
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (overlay) overlay.classList.toggle('hidden', !open);
+        menu.classList.toggle('translate-x-full', !open);
+        if (open) {
+          top.style.transform = 'rotate(45deg)';
+          bot.style.transform = 'rotate(-45deg)';
+          mid.style.opacity = '0';
+        } else {
+          top.style.transform = 'translateY(-6px)';
+          bot.style.transform = 'translateY(6px)';
+          mid.style.opacity = '1';
+        }
+      }
+      btn.addEventListener('click', function () { setOpen(!open); });
+      if (closeBtn) closeBtn.addEventListener('click', function () { setOpen(false); });
+      if (overlay) overlay.addEventListener('click', function () { setOpen(false); });
+    })();
+
+    function goBackSmart() {
+      const path = window.location.pathname;
+      const cowMatch = path.match(/^\/cows\/(\d+)\//);
+
+      if (/^\/cows\/\d+\/sell\/?$/.test(path)) {
+        window.location.href = '/';
+        return;
+      }
+      if (/^\/cows\/\d+\/?$/.test(path)) {
+        window.location.href = '/cows/';
+        return;
+      }
+      if (cowMatch && (/\/edit\/?$/.test(path) || /\/health\/?$/.test(path) || /\/medicine\//.test(path))) {
+        window.location.href = '/cows/' + cowMatch[1] + '/';
+        return;
+      }
+      if (/^\/marketplace\/?$/.test(path)) {
+        window.location.href = '/';
+        return;
+      }
+      if (/^\/marketplace\/cow\/\d+\/?$/.test(path)) {
+        window.location.href = '/marketplace/';
+        return;
+      }
+      if (/^\/marketplace\/cow\/\d+\/detail\/?$/.test(path)) {
+        window.location.href = '/marketplace/';
+        return;
+      }
+      if (/^\/cows\/add\/?$/.test(path)) {
+        window.location.href = '/cows/';
+        return;
+      }
+      if (/^\/delivery\/notifications\/?$/.test(path)) {
+        window.location.href = '/delivery/';
+        return;
+      }
+      if (/^\/delivery\/?$/.test(path)) {
+        window.location.href = '/';
+        return;
+      }
+      if (/^\/customers\/add\/?$/.test(path)) {
+        window.location.href = '/customers/';
+        return;
+      }
+      if (/^\/customers\/\d+\/(edit|delete)?\/?$/.test(path)) {
+        window.location.href = '/customers/';
+        return;
+      }
+      if (/^\/feed-sacks\/add\/?$/.test(path)) {
+        window.location.href = '/feed-sacks/';
+        return;
+      }
+      window.location.href = '/';
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

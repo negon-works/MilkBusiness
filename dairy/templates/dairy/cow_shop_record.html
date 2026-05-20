@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Cow Shop Record{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <h1 class="text-2xl font-bold text-slate-900">Cow Shop Record</h1>
+    <p class="text-sm text-slate-600">Separate shop details for this cow listing.</p>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="grid gap-3 text-sm text-slate-800 md:grid-cols-2">
+      <div><span class="font-semibold">Name:</span> {{ cow.name }}</div>
+      <div><span class="font-semibold">Tag:</span> {{ cow.ear_tag_number|default:'-' }}</div>
+      <div><span class="font-semibold">Sex:</span> {{ cow.sex|title }}</div>
+      <div><span class="font-semibold">Age:</span> {{ cow.age }} years</div>
+      <div><span class="font-semibold">Pregnancy Status:</span> {% if cow.currently_pregnant %}Pregnant{% else %}Not Pregnant{% endif %}</div>
+      <div><span class="font-semibold">Pregnancy Count:</span> {{ cow.number_of_pregnancy|default:'-' }}</div>
+      <div><span class="font-semibold">Avg Milk/Day:</span> {{ cow.average_litre_per_day|default:'-' }} L</div>
+      <div><span class="font-semibold">Ownership:</span> {% if cow.is_bought %}Bought{% else %}Farm Born{% endif %}</div>
+      <div><span class="font-semibold">Selling Price:</span> <span class="rounded bg-emerald-600 px-2 py-1 font-bold text-white">Rs {{ listing.selling_price }}</span></div>
+      <div><span class="font-semibold">Listed On:</span> {{ listing.listed_on|date:'d M Y' }}</div>
+      <div><span class="font-semibold">Status:</span> {% if listing.is_active %}<span class="font-semibold text-emerald-700">Active in Shop</span>{% else %}<span class="font-semibold text-slate-700">Not Active</span>{% endif %}</div>
+      {% if listing.sold_on %}<div><span class="font-semibold">Sold On:</span> {{ listing.sold_on|date:'d M Y' }}</div>{% endif %}
+      {% if listing.notes %}<div class="md:col-span-2"><span class="font-semibold">Notes:</span> {{ listing.notes }}</div>{% endif %}
+    </div>
+  </div>
+
+  <div class="flex gap-2">
+    <a href="{% url 'marketplace_cow_detail' cow.id %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700">Open Shop Detail</a>
+    <a href="{% url 'marketplace_list' %}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700">Back to Shop</a>
+  </div>
+
+  {% if listing.is_active %}
+    <div class="grid gap-2 sm:grid-cols-2">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="sold_out">
+        <button class="w-full rounded-lg bg-amber-600 px-4 py-2 font-semibold text-white">Set Sold Out</button>
+      </form>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="cancel_listing">
+        <button class="w-full rounded-lg bg-rose-600 px-4 py-2 font-semibold text-white">Cancel Listing</button>
+      </form>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

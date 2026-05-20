@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Shop Cow Detail{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-md md:p-6">
+    <div class="grid gap-6 md:grid-cols-[360px,1fr]">
+      {% if cow.photo %}
+        <img src="{{ cow.photo.url }}" class="h-full min-h-[300px] w-full rounded-2xl object-cover" alt="{{ cow.name }}">
+      {% else %}
+        <div class="flex h-full min-h-[300px] items-center justify-center rounded-2xl bg-slate-100 text-slate-500">No Photo</div>
+      {% endif %}
+
+      <div>
+        <h1 class="text-3xl font-extrabold text-amber-950">{{ cow.name }}</h1>
+        <hr class="my-3">
+        <h3 class="mb-2 text-lg font-bold text-amber-950">Profile Details</h3>
+        <div class="grid gap-2 text-base text-slate-900 sm:grid-cols-2">
+          {% if cow.ear_tag_number %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Ear/Tag Number:</span> {{ cow.ear_tag_number }}</div>
+          {% endif %}
+          <div><span class="font-medium text-slate-700">Sex:</span> {{ cow.sex|title }}</div>
+          <div><span class="font-medium text-slate-700">Age:</span> {{ cow.age }} Years</div>
+          <div class="sm:col-span-2"><span class="font-medium text-slate-700">Status:</span> {% if cow.is_bought %}Bought{% else %}Born in Farm{% endif %}</div>
+          {% if cow.birth_date %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Date of Birth:</span> {{ cow.birth_date|date:'d-m-Y' }}</div>
+          {% endif %}
+          {% if cow.buyed_date %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Brought Date:</span> {{ cow.buyed_date|date:'d-m-Y' }}</div>
+          {% endif %}
+        </div>
+
+        <hr class="my-4">
+        <h3 class="mb-2 text-lg font-bold text-amber-950">Reproductive Status</h3>
+        <div class="grid gap-2 text-base text-slate-900 sm:grid-cols-2">
+          {% if cow.currently_pregnant %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Pregnancy:</span> Pregnant</div>
+          {% endif %}
+          {% if cow.number_of_pregnancy %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Pregnancy Count:</span> {{ cow.number_of_pregnancy }}th pregnancy</div>
+          {% endif %}
+        </div>
+
+        <hr class="my-4">
+        <h3 class="mb-2 text-lg font-bold text-amber-950">Production</h3>
+        <div class="grid gap-2 text-base text-slate-900 sm:grid-cols-2">
+          <div class="sm:col-span-2"><span class="font-medium text-slate-700">Avg Milk/Day:</span> {{ cow.average_litre_per_day|default:'-' }} L</div>
+        </div>
+
+        <hr class="my-4">
+        <h3 class="mb-2 text-lg font-bold text-amber-950">Health Care</h3>
+        <div class="grid gap-2 text-base text-slate-900 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <span class="font-medium text-slate-700">Deworming:</span>
+            <span class="ml-1 rounded bg-orange-500 px-2 py-0.5 text-sm font-bold text-white">{% if deworming_latest %}{{ deworming_latest.given_on|date:'d M Y' }}{% else %}-{% endif %}</span>
+          </div>
+          <div class="sm:col-span-2">
+            <span class="font-medium text-slate-700">FMD Vaccine:</span>
+            <span class="ml-1 rounded bg-sky-600 px-2 py-0.5 text-sm font-bold text-white">{% if fmd_latest %}{{ fmd_latest.given_on|date:'d M Y' }}{% else %}-{% endif %}</span>
+          </div>
+        </div>
+
+        <hr class="my-4">
+        <h3 class="mb-2 text-lg font-bold text-amber-950">Shop Listing</h3>
+        <div class="grid gap-2 text-base text-slate-900 sm:grid-cols-2">
+          <div class="sm:col-span-2"><span class="font-medium text-slate-700">Selling Price:</span> <span class="rounded bg-emerald-600 px-2 py-1 font-bold text-white">Rs {{ listing.selling_price }}</span></div>
+          <div class="sm:col-span-2"><span class="font-medium text-slate-700">Listed On:</span> {{ listing.listed_on|date:'d M Y' }}</div>
+          {% if listing.notes %}
+            <div class="sm:col-span-2"><span class="font-medium text-slate-700">Notes:</span> {{ listing.notes }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

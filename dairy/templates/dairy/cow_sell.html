@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Cow Shop Setup - {{ cow.name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-4xl space-y-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <h1 class="text-2xl font-bold text-slate-900">Cow Shop Setup</h1>
+    <p class="text-sm text-slate-600">Profile data is auto-loaded. Set selling price and publish.</p>
+  </div>
+
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="grid gap-3 text-sm text-slate-800 md:grid-cols-2">
+      <div><span class="font-semibold">Name:</span> {{ cow.name }}</div>
+      <div><span class="font-semibold">Tag:</span> {{ cow.ear_tag_number|default:'-' }}</div>
+      <div><span class="font-semibold">Sex:</span> {{ cow.sex|title }}</div>
+      <div><span class="font-semibold">Age:</span> {{ cow.age }} years</div>
+      <div><span class="font-semibold">Pregnancy Status:</span> {% if cow.currently_pregnant %}Pregnant{% else %}Not Pregnant{% endif %}</div>
+      <div><span class="font-semibold">Pregnancy Count:</span> {{ cow.number_of_pregnancy|default:'-' }}</div>
+      <div><span class="font-semibold">Avg Milk/Day:</span> {{ cow.average_litre_per_day|default:'-' }} L</div>
+      <div><span class="font-semibold">Ownership:</span> {% if cow.is_bought %}Bought{% else %}Farm Born{% endif %}</div>
+      {% if cow.buyed_date %}<div><span class="font-semibold">Purchase Date:</span> {{ cow.buyed_date|date:'d M Y' }}</div>{% endif %}
+      {% if cow.birth_date %}<div><span class="font-semibold">DOB:</span> {{ cow.birth_date|date:'d M Y' }}</div>{% endif %}
+    </div>
+  </div>
+
+  <form method="post" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+    {% csrf_token %}
+    <div>{{ form.selling_price.label_tag }} {{ form.selling_price }}</div>
+    <div>{{ form.notes.label_tag }} {{ form.notes }}</div>
+    <button class="w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white">Publish to Shop</button>
+  </form>
+  {% if listing %}
+    <a href="{% url 'cow_shop_record' cow.id %}" class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-center font-semibold text-slate-700">Open Cow Shop Record</a>
+  {% endif %}
+</div>
+{% endblock %}
