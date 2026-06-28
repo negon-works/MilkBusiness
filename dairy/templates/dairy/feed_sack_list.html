@@ -1,10 +1,91 @@
 {% extends 'base.html' %}
 {% block title %}Feed Sacks{% endblock %}
 {% block content %}
-<div class="mx-auto max-w-3xl space-y-3">
-  <div class="flex items-center justify-between"><h1 class="text-2xl font-bold">Feed Sacks</h1><a href="{% url 'feed_sack_create' %}" class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">+ Add</a></div>
-  {% for item in purchases %}
-    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><div class="flex items-center justify-between"><div><div class="font-semibold">{{ item.purchase_date }}</div><div class="text-sm text-slate-500">{{ item.notes|default:'No note' }}</div></div><div class="text-xl font-bold">{{ item.sack_count }} sacks</div></div></div>
-  {% empty %}<div class="rounded-xl border border-slate-200 bg-white p-4 text-slate-600">No feed sack entries yet.</div>{% endfor %}
+<div class="mx-auto max-w-4xl space-y-4">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Feed Sacks</h1>
+      <div class="text-sm text-slate-500">{{ selected_month_label }}</div>
+    </div>
+    <a href="{% url 'feed_sack_create' %}" class="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">+ Add</a>
+  </div>
+
+  {% if available_months %}
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      {% for month in available_months %}
+        <a href="{{ month.url }}" class="shrink-0 rounded-full border px-4 py-2 text-sm font-semibold {% if month.is_selected %}border-emerald-600 bg-emerald-50 text-emerald-700{% else %}border-slate-200 bg-white text-slate-700{% endif %}">
+          {{ month.label }}
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="space-y-3">
+    {% for item in purchase_groups %}
+      <details class="feed-bill-card group rounded-xl border border-slate-200 bg-white shadow-sm">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
+          <div>
+            <div class="font-bold text-slate-900">{{ item.purchase_date|date:"d/m/Y" }}</div>
+            <div class="text-sm text-slate-500">Tap to view bill</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <div class="text-3xl font-extrabold text-orange-600">{{ item.total_sacks }}</div>
+              <div class="text-xs font-semibold uppercase text-slate-500">sacks</div>
+            </div>
+            <div class="feed-arrow flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-base font-extrabold text-slate-500 transition group-open:rotate-180">v</div>
+          </div>
+        </summary>
+
+        <div class="border-t border-slate-100 p-4">
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[560px] text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-left text-slate-500">
+                  <th class="py-2 font-semibold">Name</th>
+                  <th class="py-2 text-right font-semibold">Price</th>
+                  <th class="py-2 text-right font-semibold">No. of sack</th>
+                  <th class="py-2 text-right font-semibold">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sack in item.sack_rows %}
+                  <tr class="border-b border-slate-100">
+                    <td class="py-2 font-semibold text-slate-900">{{ sack.name }}</td>
+                    <td class="py-2 text-right">{{ sack.price }}</td>
+                    <td class="py-2 text-right">{{ sack.count }}</td>
+                    <td class="py-2 text-right font-semibold">{{ sack.total }}</td>
+                  </tr>
+                {% endfor %}
+
+                {% for cost in item.cost_rows %}
+                  <tr class="border-b border-slate-100 bg-slate-50">
+                    <td class="py-2 font-semibold text-slate-900">{{ cost.name }}</td>
+                    <td class="py-2 text-right">{{ cost.amount }}</td>
+                    <td class="py-2 text-right">-</td>
+                    <td class="py-2 text-right font-semibold">{{ cost.amount }}</td>
+                  </tr>
+                {% endfor %}
+
+                <tr>
+                  <td colspan="3" class="py-3 text-right text-base font-bold text-slate-900">Total</td>
+                  <td class="py-3 text-right text-base font-extrabold text-emerald-700">{{ item.grand_total_amount }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+    {% empty %}
+      <div class="rounded-xl border border-slate-200 bg-white p-4 text-slate-600">No feed sack entries for this month.</div>
+    {% endfor %}
+  </div>
 </div>
+<script>
+  document.addEventListener('click', (event) => {
+    document.querySelectorAll('.feed-bill-card[open]').forEach((card) => {
+      if (!card.contains(event.target)) card.removeAttribute('open');
+    });
+  });
+</script>
 {% endblock %}

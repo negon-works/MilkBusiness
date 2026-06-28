@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 
 class Customer(models.Model):
@@ -22,6 +22,7 @@ class Customer(models.Model):
 
 class BusinessSetting(models.Model):
     milk_rate_per_litre = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('60.00'))
+    data_reset_date = models.DateField(default=date(2026, 4, 1))
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -234,7 +235,63 @@ class FeedSackPurchase(models.Model):
         ordering = ['-purchase_date', '-id']
 
     def __str__(self):
-        return f'{self.purchase_date} - {self.sack_count} sacks'
+        return f'{self.purchase_date} - {self.total_sacks} sacks'
+
+    @property
+    def total_sacks(self):
+        lines = getattr(self, '_prefetched_objects_cache', {}).get('items')
+        if lines is not None:
+            total = sum(item.sack_count for item in lines)
+            return total or self.sack_count
+        total = self.items.aggregate(total=Sum('sack_count')).get('total') or 0
+        return total or self.sack_count
+
+    @property
+    def sack_total_amount(self):
+        lines = getattr(self, '_prefetched_objects_cache', {}).get('items')
+        if lines is not None:
+            return sum(item.line_total for item in lines)
+        return sum(item.line_total for item in self.items.all())
+
+    @property
+    def additional_total_amount(self):
+        costs = getattr(self, '_prefetched_objects_cache', {}).get('additional_costs')
+        if costs is not None:
+            return sum(cost.amount for cost in costs)
+        return sum(cost.amount for cost in self.additional_costs.all())
+
+    @property
+    def grand_total_amount(self):
+        return self.sack_total_amount + self.additional_total_amount
+
+
+class FeedSackItem(models.Model):
+    purchase = models.ForeignKey(FeedSackPurchase, on_delete=models.CASCADE, related_name='items')
+    sack_name = models.CharField(max_length=120)
+    price_per_sack = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    sack_count = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f'{self.sack_name} - {self.sack_count} sacks'
+
+    @property
+    def line_total(self):
+        return self.price_per_sack * self.sack_count
+
+
+class FeedSackAdditionalCost(models.Model):
+    purchase = models.ForeignKey(FeedSackPurchase, on_delete=models.CASCADE, related_name='additional_costs')
+    cost_type = models.CharField(max_length=120)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f'{self.cost_type} - {self.amount}'
 
 
 class DiseaseType(models.Model):

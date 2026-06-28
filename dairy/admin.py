@@ -11,6 +11,8 @@ from .models import (
     Customer,
     DailyEntry,
     DiseaseType,
+    FeedSackAdditionalCost,
+    FeedSackItem,
     FeedSackPurchase,
     MonthlyBill,
 )
@@ -43,11 +45,22 @@ class CowAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+class FeedSackItemInline(admin.TabularInline):
+    model = FeedSackItem
+    extra = 0
+
+
+class FeedSackAdditionalCostInline(admin.TabularInline):
+    model = FeedSackAdditionalCost
+    extra = 0
+
+
 @admin.register(FeedSackPurchase)
 class FeedSackPurchaseAdmin(admin.ModelAdmin):
     list_display = ('purchase_date', 'sack_count', 'notes')
     list_filter = ('purchase_date',)
     search_fields = ('notes',)
+    inlines = [FeedSackItemInline, FeedSackAdditionalCostInline]
 
 
 @admin.register(BusinessSetting)

@@ -118,14 +118,15 @@ class BusinessSettingForm(forms.ModelForm):
 
 
 class FeedSackForm(forms.ModelForm):
+    purchase_date = forms.DateField(
+        input_formats=['%d/%m/%Y', '%Y-%m-%d'],
+        widget=forms.TextInput(attrs={'placeholder': 'dd/mm/yyyy'}),
+        label='Date',
+    )
+
     class Meta:
         model = FeedSackPurchase
-        fields = ['purchase_date', 'sack_count', 'notes']
-        widgets = {
-            'purchase_date': DateInput(),
-            'sack_count': forms.NumberInput(attrs={'min': '1'}),
-            'notes': forms.TextInput(attrs={'placeholder': 'Optional note'}),
-        }
+        fields = ['purchase_date']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
