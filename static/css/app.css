@@ -35,6 +35,34 @@ body {
 .status-paid { background: #e3f9eb; color: #157347; }
 .status-pending { background: #ffe4e6; color: #b4232f; }
 
+.nav-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.nav-icon-cow {
+  -webkit-mask-image: url("../images/cow-animals-svgrepo-com.svg");
+  mask-image: url("../images/cow-animals-svgrepo-com.svg");
+}
+
+.nav-icon-customer {
+  -webkit-mask-image: url("../images/person-3-fill-svgrepo-com.svg");
+  mask-image: url("../images/person-3-fill-svgrepo-com.svg");
+}
+
+.nav-icon-delivery {
+  -webkit-mask-image: url("../images/delivery-movement-svgrepo-com.svg");
+  mask-image: url("../images/delivery-movement-svgrepo-com.svg");
+}
+
 .ref-wrap {
   min-height: 100vh;
   background: url("../images/mobilebgimage.jpeg") center/cover no-repeat;

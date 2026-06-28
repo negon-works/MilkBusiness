@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Settings - Milk Manager{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-2xl">
+  <h1 class="mb-6 text-3xl font-bold text-[#0d3f2f]">Settings</h1>
+
+  <div class="space-y-4">
+    <!-- Install App Card (Hidden if already installed) -->
+    <div id="installCard" class="rounded-lg border border-emerald-200 bg-emerald-50 p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-emerald-900">Install App</h2>
+          <p class="mt-2 text-sm text-emerald-700">
+            Add Milk Manager to your home screen for quick access.
+          </p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button onclick="installApp()" class="rounded-lg bg-emerald-600 px-4 py-2 text-white font-semibold hover:bg-emerald-700 transition">
+          Install to Home Screen
+        </button>
+      </div>
+    </div>
+
+    <!-- Reset Data Card -->
+    <div class="rounded-lg border border-red-200 bg-red-50 p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-red-900">Reset All Data</h2>
+          <p class="mt-2 text-sm text-red-700">
+            Clear all data from the system including customers, deliveries, cows, and bills.
+            This action cannot be undone.
+          </p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <form method="POST" action="{% url 'reset_data' %}" onsubmit="return confirm('Are you absolutely sure? This will delete ALL data permanently.');">
+          {% csrf_token %}
+          <button type="submit" name="action" value="confirm_reset" style="background-color: #dc2626; color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 16px;">
+            Reset All Data
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="rounded-lg border border-blue-200 bg-blue-50 p-6">
+      <h2 class="text-lg font-semibold text-blue-900">What happens when you reset?</h2>
+      <ul class="mt-3 space-y-2 text-sm text-blue-700">
+        <li>✓ All customer records will be deleted</li>
+        <li>✓ All delivery entries will be deleted</li>
+        <li>✓ All cow records will be deleted</li>
+        <li>✓ All bills and payments will be deleted</li>
+        <li>✓ Calendar will start from today's month</li>
+        <li>✓ All previous months will be removed from calendar</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  function isAppInstalled() {
+    // Check if running as PWA/standalone app
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true ||
+           document.referrer.includes('android-app://');
+  }
+
+  function installApp() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          alert('App installed successfully!');
+        }
+        deferredPrompt = null;
+      });
+    } else {
+      alert('App is already installed or your browser does not support installation.');
+    }
+  }
+
+  // Hide install button if app is already installed
+  document.addEventListener('DOMContentLoaded', function() {
+    if (isAppInstalled()) {
+      document.getElementById('installCard').style.display = 'none';
+    }
+  });
+</script>
+{% endblock %}

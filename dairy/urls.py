@@ -35,4 +35,6 @@ urlpatterns = [
     path('marketplace/cow/<int:pk>/', views.cow_shop_record, name='cow_shop_record'),
     path('marketplace/cow/<int:pk>/detail/', views.marketplace_cow_detail, name='marketplace_cow_detail'),
     path('diseases/add/', views.disease_create, name='disease_create'),
+    path('settings/', views.settings, name='settings'),
+    path('settings/reset/', views.reset_data, name='reset_data'),
 ]

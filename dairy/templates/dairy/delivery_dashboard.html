@@ -61,28 +61,28 @@
       </div>
     {% endif %}
 
-    <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-bold text-slate-700 md:text-sm">
+    <div class="grid grid-cols-7 gap-0.5 text-center text-[10px] font-bold text-slate-700 md:gap-1 md:text-sm">
       <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
     </div>
     <div class="mt-1 space-y-1">
       {% for week in delivery_history_weeks %}
-        <div class="grid grid-cols-7 gap-1">
+        <div class="grid grid-cols-7 gap-0.5 md:gap-1">
           {% for cell in week %}
-            <div class="aspect-square rounded-md border p-1 text-slate-800 {% if cell.is_future %}border-slate-200 bg-slate-100{% elif cell.is_holiday %}border-slate-200 bg-white{% elif cell.is_missed %}border-rose-300 bg-rose-50{% else %}border-slate-200 bg-slate-50{% endif %}">
+            <div class="aspect-square overflow-hidden rounded-md border p-0.5 text-slate-800 md:p-1 {% if cell.is_future %}border-slate-200 bg-slate-100{% elif cell.is_holiday %}border-slate-200 bg-white{% elif cell.is_missed %}border-rose-300 bg-rose-50{% else %}border-slate-200 bg-slate-50{% endif %}">
               {% if cell.show_day %}
                 {% if cell.is_future %}
-                  <div class="block h-full rounded p-1">
-                    <div class="text-[10px] font-bold md:text-xs">{{ cell.day|date:'j' }}</div>
-                    <div class="mt-1 text-[10px] font-semibold text-slate-500">Locked</div>
+                  <div class="block h-full overflow-hidden rounded p-0.5 leading-tight md:p-1">
+                    <div class="text-[9px] font-bold leading-none md:text-xs">{{ cell.day|date:'j' }}</div>
+                    <div class="mt-0.5 truncate text-[9px] font-semibold text-slate-500 md:mt-1 md:text-[10px]">Locked</div>
                   </div>
                 {% else %}
-                  <a href="{% url 'delivery_date_history' %}?date={{ cell.day|date:'Y-m-d' }}&mode=morning" class="block h-full rounded p-1 hover:bg-slate-100">
-                    <div class="text-[10px] font-bold md:text-xs">{{ cell.day|date:'j' }}</div>
+                  <a href="{% url 'delivery_date_history' %}?date={{ cell.day|date:'Y-m-d' }}&mode=morning" class="block h-full overflow-hidden rounded p-0.5 leading-tight hover:bg-slate-100 md:p-1">
+                    <div class="text-[9px] font-bold leading-none md:text-xs">{{ cell.day|date:'j' }}</div>
                     {% if not cell.is_holiday %}
-                      <div class="mt-1 text-[10px] md:text-xs">{{ cell.litre|floatformat:-2 }}L</div>
+                      <div class="mt-0.5 truncate text-[9px] md:mt-1 md:text-xs">{{ cell.litre|floatformat:-2 }}L</div>
                     {% endif %}
-                    <div class="text-[10px] font-semibold {% if cell.is_holiday %}text-slate-500{% elif cell.is_missed %}text-rose-700{% else %}text-emerald-700{% endif %}">
-                      {% if cell.is_holiday %}Off Day{% elif cell.is_missed %}Unchecked{% else %}Checked{% endif %}
+                    <div class="truncate text-[9px] font-semibold md:text-[10px] {% if cell.is_holiday %}text-slate-500{% elif cell.is_missed %}text-rose-700{% else %}text-emerald-700{% endif %}">
+                      {% if cell.is_holiday %}<span class="md:hidden">Off</span><span class="hidden md:inline">Off Day</span>{% elif cell.is_missed %}<span class="md:hidden">Unchk</span><span class="hidden md:inline">Unchecked</span>{% else %}<span class="md:hidden">Done</span><span class="hidden md:inline">Checked</span>{% endif %}
                     </div>
                   </a>
                 {% endif %}

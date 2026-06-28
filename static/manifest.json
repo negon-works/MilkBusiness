@@ -1,0 +1,77 @@
+{
+  "name": "Milk Manager",
+  "short_name": "Milk Manager",
+  "description": "Manage milk delivery, customers, billing, and cow health records",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#ffffff",
+  "background_color": "#f5f5f5",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View business dashboard",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Deliveries",
+      "short_name": "Deliveries",
+      "description": "Track milk deliveries",
+      "url": "/delivery/",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "short_name": "Customers",
+      "description": "Manage customers",
+      "url": "/customers/",
+      "icons": [
+        {
+          "src": "/static/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

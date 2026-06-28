@@ -76,6 +76,24 @@
 
   initLitreSwitchers(document);
 
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  window.installApp = function() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('App installed');
+        }
+        deferredPrompt = null;
+      });
+    }
+  };
+
   const dayModalEl = document.getElementById('dayModal');
   if (dayModalEl) {
     const payloadEl = document.getElementById('entryPayload');

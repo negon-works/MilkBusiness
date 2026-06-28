@@ -45,6 +45,17 @@
       <a href="{% url 'delivery_date_history' %}?date={{ selected_date|date:'Y-m-d' }}&mode=morning" class="rounded-lg px-3 py-2 text-center text-sm font-semibold {% if mode == 'morning' %}bg-emerald-600 text-white{% else %}border border-slate-300 text-slate-700{% endif %}">Morning</a>
       <a href="{% url 'delivery_date_history' %}?date={{ selected_date|date:'Y-m-d' }}&mode=evening" class="rounded-lg px-3 py-2 text-center text-sm font-semibold {% if mode == 'evening' %}bg-indigo-600 text-white{% else %}border border-slate-300 text-slate-700{% endif %}">Evening</a>
     </div>
+    <div class="mt-3 flex flex-wrap gap-2">
+      {% if has_pending_in_mode %}
+        <a href="{% url 'delivery_mode_start' mode %}?date={{ selected_date|date:'Y-m-d' }}" class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Start {{ mode|title }} Check</a>
+      {% endif %}
+      <a href="{% url 'delivery_summary' mode %}?date={{ selected_date|date:'Y-m-d' }}" class="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700">Open {{ mode|title }} Summary</a>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="mark_all_delivered">
+        <button class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white">Mark All {{ mode|title }} Delivered</button>
+      </form>
+    </div>
     {% endif %}
   </div>
 
@@ -56,8 +67,8 @@
       <div class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <div class="mb-2 flex items-center justify-between">
           <h3 class="text-base font-bold text-slate-900">{{ row.customer.name }}</h3>
-          <span class="text-sm font-semibold {% if row.status == 'delivered' %}text-emerald-700{% else %}text-rose-700{% endif %}">
-            {% if row.status == 'delivered' %}Delivered{% else %}No Milk{% endif %}
+          <span class="text-sm font-semibold {% if not row.checked %}text-amber-700{% elif row.status == 'delivered' %}text-emerald-700{% else %}text-rose-700{% endif %}">
+            {% if not row.checked %}Pending{% elif row.status == 'delivered' %}Delivered{% else %}No Milk{% endif %}
           </span>
         </div>
         <form method="post" class="space-y-2">

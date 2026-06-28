@@ -51,8 +51,8 @@ def get_or_create_daily_entry(customer, selected_date):
         customer=customer,
         date=selected_date,
         defaults={
-            'morning_litre': customer.morning_litre,
-            'evening_litre': customer.evening_litre,
+            'morning_litre': Decimal('0.00'),
+            'evening_litre': Decimal('0.00'),
             'morning_status': DailyEntry.STATUS_DELIVERED,
             'evening_status': DailyEntry.STATUS_DELIVERED,
         },

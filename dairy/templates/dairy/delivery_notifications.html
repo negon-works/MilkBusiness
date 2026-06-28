@@ -3,25 +3,29 @@
 {% block content %}
 <div class="mx-auto max-w-4xl space-y-4">
   <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-    <h1 class="text-2xl font-bold text-slate-900">Delivery Notifications</h1>
-    <p class="text-sm text-slate-600">Missed delivery days are listed here.</p>
+    <h1 class="text-2xl font-bold text-slate-900">Pending Delivery Checkings</h1>
+    <p class="text-sm text-slate-600">Open a month card to resolve unchecked delivery dates.</p>
   </div>
 
   <div class="space-y-2">
-    {% for item in missed_days %}
-      <div class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-rose-200 bg-white p-3 shadow-sm">
-        <a href="{% url 'delivery_date_history' %}?date={{ item.date|date:'Y-m-d' }}&mode=morning" class="text-sm text-slate-800">
-          You missed <strong>{{ item.date|date:'d M Y' }}</strong>
-          <span class="text-rose-700">(Morning pending: {{ item.morning_pending }}, Evening pending: {{ item.evening_pending }})</span>
-        </a>
-        <form method="post" action="{% url 'delivery_notifications' %}">
-          {% csrf_token %}
-          <input type="hidden" name="date" value="{{ item.date|date:'Y-m-d' }}">
-          <button class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700">Mark as Off Day</button>
-        </form>
-      </div>
+    {% for month in pending_month_cards %}
+      <a href="{% url 'delivery_dashboard' %}?history_month={{ month.month }}&history_year={{ month.year }}" class="block rounded-2xl border border-rose-200 bg-white p-4 shadow-sm hover:bg-rose-50/40">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">{{ month.month_label }}</h3>
+            <p class="text-sm text-rose-700">
+              {% if month.start_day == month.end_day %}
+                {{ month.start_day|date:'j' }}
+              {% else %}
+                {{ month.start_day|date:'j' }} - {{ month.end_day|date:'j' }}
+              {% endif %}
+            </p>
+          </div>
+          <span class="rounded-full bg-rose-600 px-2 py-1 text-xs font-bold text-white">{{ month.count }} days</span>
+        </div>
+      </a>
     {% empty %}
-      <div class="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">No missed delivery notifications.</div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">No pending delivery checkings.</div>
     {% endfor %}
   </div>
 
