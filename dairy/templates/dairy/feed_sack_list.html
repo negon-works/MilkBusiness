@@ -33,7 +33,7 @@
               <div class="text-3xl font-extrabold text-orange-600">{{ item.total_sacks }}</div>
               <div class="text-xs font-semibold uppercase text-slate-500">sacks</div>
             </div>
-            <div class="feed-arrow flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-base font-extrabold text-slate-500 transition group-open:rotate-180">v</div>
+            <div class="feed-arrow"><span></span></div>
           </div>
         </summary>
 
@@ -81,6 +81,33 @@
     {% endfor %}
   </div>
 </div>
+<style>
+  .feed-arrow {
+    display: inline-flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 9999px;
+    background: rgb(248 250 252);
+  }
+
+  .feed-arrow span {
+    display: block;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-right: 2px solid rgb(100 116 139);
+    border-bottom: 2px solid rgb(100 116 139);
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 180ms ease;
+  }
+
+  .feed-bill-card[open] .feed-arrow span {
+    transform: translateY(2px) rotate(225deg);
+  }
+</style>
 <script>
   document.addEventListener('click', (event) => {
     document.querySelectorAll('.feed-bill-card[open]').forEach((card) => {
@@ -89,3 +116,4 @@
   });
 </script>
 {% endblock %}
+
